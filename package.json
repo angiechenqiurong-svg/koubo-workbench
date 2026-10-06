@@ -1,0 +1,23 @@
+{
+  "name": "koubo-workbench",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "setup:speech": "node scripts/setup-speech.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "release:zip": "node scripts/package.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.12.0",
+    "@ffmpeg-installer/ffmpeg": "1.1.0",
+    "@ffprobe-installer/ffprobe": "2.1.2"
+  },
+  "description": "本机口播素材工作台：抖音链接下载、中文文案提取、校对与拆解",
+  "license": "MIT"
+}

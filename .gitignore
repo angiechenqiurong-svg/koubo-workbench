@@ -1,0 +1,14 @@
+node_modules/
+.local-data/
+.speech-env/
+.speech-model/
+.browser-helper/
+subtitles-ocr
+.env
+.env.*
+!.env.example
+*.log
+__pycache__/
+.DS_Store
+dist/
+*.tmp

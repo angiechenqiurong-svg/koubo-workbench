@@ -1,0 +1,4 @@
+# PyAV 12 supports older macOS installations. VAD is disabled in speech.py.
+faster-whisper==1.2.1
+av==12.3.0
+opencc-python-reimplemented==0.1.7
