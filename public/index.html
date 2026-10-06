@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>口播工作台</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script></head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">言</span><div>口播工作台<small>我的生活感悟素材</small></div></div>
+    <button class="primary" id="focus-link">粘贴抖音链接</button><button class="sidebar-import import-trigger">＋ 导入本地视频</button><input id="upload" type="file" accept="video/mp4,video/quicktime,video/webm,.m4v" hidden multiple>
+    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="搜索主题、标签或文案" aria-label="搜索素材"></label>
+    <div class="list-heading"><span>素材库</span><span id="count">0 条</span></div>
+    <div id="library" class="library" aria-label="视频素材"></div>
+    <div class="sidebar-bottom"><button id="settings-open" class="settings-button">⚙ AI 设置 <span id="connection" class="connection">待配置</span></button><span class="local-note">素材和修改保存在这台电脑</span></div>
+  </aside>
+  <main class="workspace">
+    <header class="topbar"><div class="breadcrumb">我的素材 <span>/</span> <span id="breadcrumb-title">正在读取</span></div><div class="top-actions"><span id="save-state" role="status"></span><button id="export" class="button">导出笔记</button></div></header>
+    <section class="link-import" aria-label="抖音链接下载"><form id="link-form"><div class="link-intro"><h2>粘贴抖音链接，下载并提取文案</h2><p>支持短链接、视频网址，也可以直接粘贴整段抖音分享文字。</p></div><div class="link-input-row"><textarea id="douyin-link" aria-label="抖音链接或分享文字" rows="2" placeholder="在这里粘贴 https://v.douyin.com/… 或整段分享文字" required></textarea><button id="link-submit" class="primary" type="submit">下载并提取</button></div><div class="link-options"><label class="checkbox"><input id="extract-after" type="checkbox" checked>下载后自动提取口播文案</label><span id="local-speech-note" class="muted">本机识别，无需 AI 接口</span></div><p id="link-error" class="error" role="alert"></p></form><div id="import-jobs" class="import-jobs" aria-live="polite"></div></section>
+    <section id="empty" hidden class="empty"><h1>从一条口播开始</h1><p>导入视频，整理文案，找到可以借鉴的表达方法。</p><button class="primary import-trigger">导入视频</button></section>
+    <section id="detail" class="detail">
+      <div class="detail-heading"><div><div class="eyebrow">视频拆解 · 生活感悟</div><h1 id="video-title"></h1><div id="tags" class="tags"></div></div><button id="edit-meta" class="button subtle">编辑标题与标签</button></div>
+      <div id="job-status" class="job-status" hidden role="status"></div>
+      <div class="work-columns">
+        <section class="video-panel"><div class="player"><video id="player" controls preload="metadata" playsinline></video></div><div id="video-meta" class="video-meta"></div><div class="video-note"><span class="small-label">当前素材</span><p id="source-note"></p><div id="douyin-source" hidden></div></div><a id="download-video" class="button full" href="#">保存视频到下载文件夹</a><button id="local-transcribe" class="button full">本机提取口播文案</button><button id="transcribe" class="button full subtle">用 AI 接口提取文案</button><button id="paste-transcript" class="button full subtle">粘贴已有文案</button><div class="flow-note"><strong>从参考走到自己的表达</strong><p>先核对文案，再看拆解，最后补入你的经历。</p></div></section>
+        <section class="editor-panel"><div class="tabs" role="tablist" aria-label="工作区"><button role="tab" aria-selected="true" data-tab="transcript">文案校对</button><button role="tab" aria-selected="false" data-tab="analysis">选题与拆解</button><button role="tab" aria-selected="false" data-tab="creation">我的创作</button></div><div id="tab-content" class="tab-content"></div></section>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast" hidden role="status"></div>
+<dialog id="settings-dialog"><form id="settings-form"><div class="dialog-heading"><h2>AI 设置</h2><button type="button" class="icon-button dialog-close" aria-label="关闭">×</button></div><p class="muted">配置后可直接提取、拆解和生成稿子。只有 ChatGPT 账户，也可以使用工作区里的“复制给 ChatGPT”。</p><label>接口地址<input name="baseUrl" type="url" required placeholder="https://api.openai.com/v1"></label><label>接口密钥<input name="apiKey" type="password" autocomplete="new-password" placeholder="未配置"></label><label>文字模型名称<input name="chatModel" placeholder="填写服务商提供的模型名称"></label><label>语音识别模型<input name="transcriptionModel" value="whisper-1"></label><p class="muted">密钥仅保存在本机，不会显示在页面或导出笔记中。调用云端服务时，会发送相应的音频或文字；按服务商规则计费。whisper-1 可返回段落时间点，其他模型可能仅返回整段文字。</p><label class="checkbox"><input type="checkbox" name="clearKey">清除已保存的密钥</label><p id="settings-error" class="error" role="alert"></p><div class="dialog-actions"><button type="button" class="button dialog-close">取消</button><button type="submit" class="primary">保存设置</button></div></form></dialog>
+<dialog id="text-dialog"><div class="dialog-heading"><h2 id="text-dialog-title"></h2><button class="icon-button dialog-close" aria-label="关闭">×</button></div><p id="text-dialog-note" class="muted"></p><textarea id="text-dialog-input" rows="12"></textarea><p id="text-dialog-error" class="error" role="alert"></p><div class="dialog-actions"><button class="button dialog-close">取消</button><button id="text-dialog-submit" class="primary">保存</button></div></dialog>
+<dialog id="meta-dialog"><form id="meta-form"><div class="dialog-heading"><h2>整理素材</h2><button type="button" class="icon-button dialog-close" aria-label="关闭">×</button></div><label>标题<input name="title" required maxlength="100"></label><label>标签<input name="tags" placeholder="用逗号分隔，例如：自我认可，观点型"></label><p id="meta-error" class="error" role="alert"></p><div class="dialog-actions"><button type="button" class="button dialog-close">取消</button><button class="primary">保存</button></div></form></dialog>
+</body></html>
