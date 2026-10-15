@@ -2,6 +2,7 @@ node_modules/
 .local-data/
 .speech-env/
 .speech-model/
+.speech-model-small/
 .browser-helper/
 subtitles-ocr
 .env

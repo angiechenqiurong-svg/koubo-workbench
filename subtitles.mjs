@@ -1,6 +1,8 @@
 const normalize=text=>text.replace(/[\s\p{P}]/gu,'');
-function similar(a,b){a=normalize(a);b=normalize(b);if(Math.min(a.length,b.length)<6||/[不没无]/.test(a)!==/[不没无]/.test(b))return false;let row=Array.from({length:b.length+1},(_,i)=>i);for(let i=0;i<a.length;i++){const next=[i+1];for(let j=0;j<b.length;j++)next.push(Math.min(next[j]+1,row[j+1]+1,row[j]+(a[i]===b[j]?0:1)));row=next;}return row[b.length]<=Math.max(1,Math.floor(Math.max(a.length,b.length)*.18));}
+function similar(a,b){a=normalize(a);b=normalize(b);if(Math.min(a.length,b.length)<4||(a.match(/[不没无未别勿\d]/g)||[]).join('')!==(b.match(/[不没无未别勿\d]/g)||[]).join(''))return false;let row=Array.from({length:b.length+1},(_,i)=>i);for(let i=0;i<a.length;i++){const next=[i+1];for(let j=0;j<b.length;j++)next.push(Math.min(next[j]+1,row[j+1]+1,row[j]+(a[i]===b[j]?0:1)));row=next;}return row[b.length]<=Math.max(1,Math.floor(Math.max(a.length,b.length)*.18));}
 export function subtitleSegments(frames,duration,interval,audioText=''){
+  const audio=Array.isArray(audioText)?audioText:null;
+  if(audio)audioText=audio.map(s=>s.text).join('');
   if(frames.length<4)return null;
   const seen=new Map();
   const rows=frames.map(f=>({time:f.time,items:f.items.filter(x=>x.confidence>=0.6&&/[\p{Script=Han}]/u.test(x.text)&&!/(抖音|抖音号|点赞|关注|分享|评论|下载App|douyin)/i.test(x.text))}));
@@ -13,6 +15,17 @@ export function subtitleSegments(frames,duration,interval,audioText=''){
   const captions=dynamic.map(f=>({time:f.time,text:f.items.filter(x=>Math.abs((x.y+x.h/2)*10-dominant-.5)<=1.8).sort((a,b)=>Math.abs(a.y-b.y)<.02?a.x-b.x:b.y-a.y).map(x=>x.text.trim()).join('')})).filter(x=>x.text.length>=3);
   if(captions.length<frames.length*.55)return null;
   const result=[];for(const c of captions){const previous=result.at(-1);if(previous&&normalize(previous.text)===normalize(c.text)&&c.time<=previous.end+interval*1.5)previous.end=Math.min(duration,c.time+interval);else result.push({start:c.time,end:Math.min(duration,c.time+interval),text:c.text});}
+  // A same-time audio match can resolve OCR variants, including a wrong
+  // spelling repeated in several frames. Keep both when audio supports both.
+  if(audio)for(let i=0;i<result.length;i++){
+    let end=i+1;
+    while(end<result.length&&result[end].start-result[end-1].end<=interval*1.1&&similar(result[i].text,result[end].text))end++;
+    if(end-i<2)continue;
+    const group=result.slice(i,end),spoken=normalize(audio.filter(s=>s.end>group[0].start&&s.start<group.at(-1).end).map(s=>s.text).join(''));
+    const supported=[...new Set(group.map(s=>s.text))].filter(text=>spoken.includes(normalize(text)));
+    if(supported.length===1){result.splice(i,end-i,{start:group[0].start,end:group.at(-1).end,text:supported[0]});}
+    else i=end-1;
+  }
   // Remove one-frame OCR flicker when adjacent stable frames agree.
   for(let i=0;i<result.length;i++){const current=result[i],previous=result[i-1],next=result[i+1];if(current.end-current.start>interval*1.1)continue;
     if(previous&&next&&normalize(previous.text)===normalize(next.text)&&similar(previous.text,current.text)&&next.start-previous.end<=interval*2.1){previous.end=next.end;result.splice(i,2);i--;}

@@ -1,6 +1,6 @@
 {
   "name": "koubo-workbench",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,16 +8,21 @@
     "test": "node --test test/*.test.mjs",
     "setup:speech": "node scripts/setup-speech.mjs",
     "doctor": "node scripts/doctor.mjs",
-    "release:zip": "node scripts/package.mjs"
+    "release:zip": "node scripts/package.mjs",
+    "setup:accurate": ".speech-env/bin/python scripts/download-model.py --model small"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
-    "puppeteer-core": "^25.12.0",
     "@ffmpeg-installer/ffmpeg": "1.1.0",
-    "@ffprobe-installer/ffprobe": "2.1.2"
+    "@ffprobe-installer/ffprobe": "2.1.2",
+    "jose": "^6.2.12",
+    "puppeteer-core": "^25.12.0"
   },
-  "description": "本机口播素材工作台：抖音链接下载、中文文案提取、校对与拆解",
-  "license": "MIT"
+  "description": "本机口播工作台：抖音、B站、小红书、YouTube 下载、文案校对与拆解",
+  "license": "MIT",
+  "devDependencies": {
+    "jsdom": "^30.1.2"
+  }
 }

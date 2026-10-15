@@ -15,3 +15,8 @@
 | Apple Vision | 可选画面文字识别 | macOS 系统框架，适用 Apple 条款 |
 
 模型首次安装单独从官方 Hugging Face 仓库下载。Chrome 由用户自行从官方来源安装，本项目不包含或修改 Chrome。第三方依赖的完整树可由 `package-lock.json` 和安装后的 Python 包信息查看。
+
+- 多平台下载：yt-dlp（Unlicense），yt-dlp-ejs 及其依赖；通过官方 PyPI 包安装。
+- 界面测试：jsdom 及其依赖，仅用于开发测试。
+
+- jose：MIT License；用于验证 OpenAI 登录身份令牌。源码：https://github.com/panva/jose 。

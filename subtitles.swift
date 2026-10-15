@@ -9,6 +9,9 @@ request.recognitionLevel = .accurate
 request.recognitionLanguages=["zh-Hans","en-US"]
 request.usesLanguageCorrection=true
 request.customWords=["内心","丰盈","通透","别人","他们","明白","幸福","生活","真正","自己","立场","不同","真理"]
+if let words=ProcessInfo.processInfo.environment["KOUBO_SPEECH_VOCABULARY"] {
+    request.customWords += words.components(separatedBy:CharacterSet(charactersIn:",，、\n")).filter{!$0.isEmpty}
+}
 let files=(try FileManager.default.contentsOfDirectory(at:directory,includingPropertiesForKeys:nil)).filter{$0.pathExtension=="jpg"}.sorted{$0.lastPathComponent<$1.lastPathComponent}
 for (index,file) in files.enumerated(){autoreleasepool{
     do {
