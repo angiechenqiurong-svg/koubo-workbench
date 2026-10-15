@@ -7,6 +7,22 @@ test('字幕初稿去除常驻文字，保留动态原句和近似时间',()=>{
   const r=subtitleSegments(frames,5,.5,'认真过好今天的生活允许自己慢慢改变');
   assert.equal(r.length,2);assert.equal(r[0].text,'认真过好今天的生活');assert.equal(r[1].start,2.5);assert.ok(!r.some(s=>s.text.includes('固定')));
 });
+test('同一字幕连续误识别时，用对应时间的语音确认正确字形',()=>{
+  const frames=Array.from({length:12},(_,i)=>({time:i*.5,items:[row(i<2?'真的不要执着于眼前的好坏':i<6?'真的不要执着于腿前的好坏':'当下发生的一切未必是真的好')]}));
+  const audio=[{start:0,end:3,text:'真的不要执着于眼前的好坏。'},{start:3,end:6,text:'当下发生的一切未必是真的好。'}];
+  const r=subtitleSegments(frames,6,.5,audio);
+  assert.equal(r.length,2);assert.equal(r[0].text,'真的不要执着于眼前的好坏');assert.equal(r[0].end,3);
+});
+test('相似的两句真实口播都存在时，不误合并；保留否定词和数字',()=>{
+  const frames=Array.from({length:12},(_,i)=>({time:i*.5,items:[row(i<3?'认真过好今天的生活':i<6?'认真过好明天的生活':i<9?'我没有得到五十元':'我得到了一百五十元')]}));
+  const audio=[{start:0,end:6,text:'认真过好今天的生活，认真过好明天的生活。我没有得到五十元，我得到了一百五十元。'}];
+  const r=subtitleSegments(frames,6,.5,audio);assert.equal(r.length,4);
+});
+test('其他时间出现的正确字形不能作为当前字幕的纠错依据',()=>{
+  const frames=Array.from({length:12},(_,i)=>({time:i*.5,items:[row(i<2?'认真过好今天的生活':i<6?'认真过好明天的生活':'允许自己慢慢改变')]}));
+  const audio=[{start:9,end:12,text:'认真过好今天的生活'}];
+  const r=subtitleSegments(frames,6,.5,audio);assert.equal(r[1].text,'认真过好明天的生活');
+});
 test('画面字幕不足时保留音频识别，不把标题当作全文',()=>{
   const frames=Array.from({length:10},(_,i)=>({time:i*.5,items:[row('永远不变的固定标题')]}));
   assert.equal(subtitleSegments(frames,5,.5,'这是音频中的实际内容'),null);
